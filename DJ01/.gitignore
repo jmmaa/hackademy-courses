@@ -1,2 +1,5 @@
 .venv
 .vsocde
+
+# py
+**/__pycache__
