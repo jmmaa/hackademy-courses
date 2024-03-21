@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 
 
 class Profile(models.Model):
-    profile_picture = models.ImageField()
+    profile_picture = models.ImageField(blank=True)
     description = models.CharField(max_length=250)
 
     # activity 3
