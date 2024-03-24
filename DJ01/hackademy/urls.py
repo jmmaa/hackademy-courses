@@ -21,8 +21,16 @@ from django.urls import path, include
 import debug_toolbar
 
 
+from activity1 import views as activity1_views
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("activity1/", include("activity1.urls")),
+    path("register/", activity1_views.register_view),
+    path("", activity1_views.home_view),
+    path("login/", activity1_views.login_view),
+    path("logout/", activity1_views.logout_view),
+    path("profile/", activity1_views.profile_view),
     path("__debug__/", include(debug_toolbar.urls)),
+    path("api/", include("api.urls")),
 ]

@@ -1,58 +1,98 @@
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render
-
-
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
 
+from .forms import LoginForm, RegistrationForm
 from .models import Profile
 
 # Create your views here.
 
 
-def profile_view(request: HttpRequest):
-    params = request.GET
+def home_view(request: HttpRequest):
+    if request.user.is_authenticated:
+        return render(request, "home.html")
 
-    first_name = params.get("first_name")
-
-    user = User.objects.get(first_name=first_name)
-    profile = Profile.objects.get(user=user)
-
-    print(profile.profile_picture)
-
-    return render(
-        request,
-        "profile.html",
-        {
-            "first_name": profile.user.first_name,
-            "last_name": profile.user.last_name,
-            "profile_picture": profile.profile_picture,
-        },
-    )
+    else:
+        return HttpResponseRedirect("/login/")
 
 
-def register_view(request):
+def logout_view(request: HttpRequest):
+    logout(request)
+
+    return HttpResponseRedirect("/login/")
+
+
+def login_view(request: HttpRequest):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-
-        print("FORM BE LIKE", form.is_valid())
+        form = LoginForm(request.POST)
 
         if form.is_valid():
-            user = form.save()
+            data = form.cleaned_data
+
+            user = authenticate(
+                request, username=data["username"], password=data["password"]
+            )
+
+            print(user)
+
+            if user is not None:
+                login(request, user)
+
+                return HttpResponseRedirect("/")
+
+    return render(request, "login.html", {"form": LoginForm()})
+
+
+def register_view(request: HttpRequest):
+    if request.method == "POST":
+        # register new user
+
+        form = RegistrationForm(request.POST)
+
+        is_valid = form.is_valid()
+        data = form.cleaned_data
+
+        if is_valid and data["password1"] == data["password2"]:
+            user = User(
+                first_name=data["first_name"],
+                last_name=data["last_name"],
+                username=data["username"],
+                email=data["email"],
+                password=data["password2"],
+            )
 
             profile = Profile(user=user)
 
+            user.set_password(data["password2"])
+            user.save()
             profile.save()
 
-            return HttpResponseRedirect("/activity1/home")
+            return HttpResponseRedirect("")
 
-        print(form.errors)
+        else:
+            # send a form
+            form = RegistrationForm()
+
+            return render(request, "register.html", {"form": form})
 
     else:
-        form = UserCreationForm()
+        # send a form
+        form = RegistrationForm()
 
         return render(request, "register.html", {"form": form})
 
 
-def home_view(request):
-    return render(request, "home.html")
+def profile_view(request: HttpRequest):
+    if request.user.is_authenticated:
+        return render(
+            request,
+            "profile.html",
+            {
+                "first_name": request.user.first_name,
+                "last_name": request.user.last_name,
+            },
+        )
+
+    else:
+        return render(request, "login.html", {"form": LoginForm()})

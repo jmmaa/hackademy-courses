@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>HOME PAGE</title>
 </head>
 <body>
-    THIS IS THE HOME PAGE
+    <h1>THIS IS THE HOME PAGE</h1>
+    
+    
+    <form action="/logout/" method="post">
+        {% csrf_token %}
+        <button type="submit">LOGOUT</button>
+    </form>
+
+    <form action="/profile/" method="post">
+        {% csrf_token %}
+        <button type="submit">PROFILE</button>
+    </form>
 </body>
 </html>
