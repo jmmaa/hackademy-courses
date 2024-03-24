@@ -1,4 +1,4 @@
-"""hackademy URL Configuration
+"""main URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -18,11 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 
 
-import debug_toolbar
+from authentication import views as authentication_views
 
+import debug_toolbar
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("activity1/", include("activity1.urls")),
+    path("register/", authentication_views.register_view),
+    path("home/", authentication_views.home_view),
+    path("login/", authentication_views.login_view),
+    path("logout/", authentication_views.logout_view),
     path("__debug__/", include(debug_toolbar.urls)),
 ]

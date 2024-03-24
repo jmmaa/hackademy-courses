@@ -8,7 +8,7 @@ from .models import Profile
 
 # activity 4
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "first_name", "last_name", "description"]
+    list_display = ["first_name", "last_name", "description"]
 
     def first_name(self, obj):
         return obj.user.first_name
