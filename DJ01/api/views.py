@@ -1,15 +1,10 @@
 # In hackademy/api/views.py
 from django.contrib.auth.models import User, Group
-from django.http import HttpRequest
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.decorators import api_view
-from rest_framework.request import Request
-from rest_framework.views import Response
+from rest_framework.views import Response, status
 from api.serializers import UserSerializer, GroupSerializer
-from rest_framework.renderers import JSONRenderer
-
-from django.contrib.auth.decorators import login_required
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -32,10 +27,17 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-@api_view(["GET"])
-def edit_users_view(request: HttpRequest):
-    data = UserSerializer(
-        User.objects.all(), many=True, context={"request": request}
-    ).data
+@api_view(
+    [
+        "POST",
+    ]
+)
+def create_user_view(request):
+    user_serializer = UserSerializer(data=request.data, context={"request": request})
 
-    return Response(data)
+    if user_serializer.is_valid():
+        user_serializer.save()
+
+        return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
